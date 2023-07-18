@@ -153,9 +153,9 @@ class FaceRecognitionSystem:
 
                     if self.person_name not in self.log_details:
                         curr_time = datetime.now()
-                        #logger.info("Face data: {person_name} - {similarity} ",person_name=self.person_name, similarity=self.similarity)
-                        with open('log.txt','a') as log_file:
-                            log_file.write(f'Face data: {self.person_name} - {self.similarity}  - {curr_time}\n')
+                        logger.debug("Face data: {person_name} - {similarity} ",person_name=self.person_name, similarity=self.similarity)
+                        #with open('log.txt','a') as log_file:
+                         #   log_file.write(f'Face data: {self.person_name} - {self.similarity}  - {curr_time}\n')
 
 
                         self.log_details[self.person_name] = datetime.now()
@@ -164,9 +164,9 @@ class FaceRecognitionSystem:
                         if datetime.now() >= self.log_details[self.person_name] + timedelta(seconds=600):
                             # Log the face data after 10 minutes
                             curr_time = datetime.now()
-                            #logger.info("Face data: {person_name} - {similarity} ", person_name=self.person_name, similarity=self.similarity)
-                            with open('log.txt', 'a') as log_file:
-                                log_file.write(f'Face data: {self.person_name} - {self.similarity} - {curr_time} \n')
+                            logger.debug("Face data: {person_name} - {similarity} ", person_name=self.person_name, similarity=self.similarity)
+                            # with open('log.txt', 'a') as log_file:
+                            #     log_file.write(f'Face data: {self.person_name} - {self.similarity} - {curr_time} \n')
 
 
                             self.log_details[self.person_name] = datetime.now()
@@ -233,9 +233,11 @@ class FaceRecognitionSystem:
 
     def run(self):
         try:
+            logger.add("log_data.log", level="DEBUG", filter=lambda record: record["level"].name == "DEBUG")
 
 
             while True:
+
                 ret, frame = self.cap.read()
                 if frame is None:
                     logger.error("[CAP ERROR]: Failed to Read Frame from Camera")
