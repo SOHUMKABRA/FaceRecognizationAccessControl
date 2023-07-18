@@ -3,7 +3,7 @@ import cv2
 
 BASE_URL = "http://192.168.1.195:8000"
 API_KEY = "a165d599-2cea-4519-8470-32148366d24e"
-3
+
 class CompreFaceRecognitionAPI:
     def __init__(self,api_key, base_url):
         self.api_key = api_key

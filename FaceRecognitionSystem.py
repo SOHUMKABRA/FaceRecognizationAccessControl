@@ -9,6 +9,7 @@ from utils import get_door_cloud_token, control_door
 from FaceDetector import FaceDetector
 
 class FaceRecognitionSystem:
+
     def __init__(self, rtsp_url, door_cloud_url):
         self.rtsp_url = rtsp_url
         self.door_cloud_url = door_cloud_url
@@ -22,6 +23,7 @@ class FaceRecognitionSystem:
         self.door_open = False  # Flag variable to track door state
         self.last_door_open_time = None  # Time when the door was last opened
         self.u_d_map = {}
+        self.log_details= {}
 
         self.frame_counter = 0
         self.skip_factor = 5
@@ -89,14 +91,14 @@ class FaceRecognitionSystem:
                     self.person_name = subjects[0]['subject']
                     # cheking for same person
                     if self.person_name in self.u_d_map is not None:
-                        currtime = datetime.now()
+                        self.currtime = datetime.now()
 
-                        if currtime >= self.u_d_map[self.person_name] + timedelta(seconds=5):
+                        if self.currtime >= self.u_d_map[self.person_name] + timedelta(seconds=5):
                             control_door(access_token)
                             self.u_d_map[self.person_name] = datetime.now()
-                            logger.info("Open the Door ")
+                            logger.success("Open the Door ")
                         else:
-                            logger.info("Cannot open the door")
+                            logger.warning("Cannot open the door")
                     else:
                         control_door(access_token)
                         self.u_d_map[self.person_name] = datetime.now()
@@ -142,12 +144,33 @@ class FaceRecognitionSystem:
                                 existing_images.sort()
                                 latest_image_path = os.path.join(self.folder_path, existing_images[-1])
                                 os.remove(latest_image_path)
-
                             # Save the image inside the person's folder
                             self.image_filename = f"{time_string}_{self.similarity}.jpeg"
                             self.save_path = os.path.join(self.folder_path, self.image_filename)
                             cv2.imwrite(self.save_path, frame)
                     logger.info(f"{self.subject_name}:{self.similarity}")
+
+
+                    if self.person_name not in self.log_details:
+                        curr_time = datetime.now()
+                        #logger.info("Face data: {person_name} - {similarity} ",person_name=self.person_name, similarity=self.similarity)
+                        with open('log.txt','a') as log_file:
+                            log_file.write(f'Face data: {self.person_name} - {self.similarity}  - {curr_time}\n')
+
+
+                        self.log_details[self.person_name] = datetime.now()
+                    else:
+
+                        if datetime.now() >= self.log_details[self.person_name] + timedelta(seconds=600):
+                            # Log the face data after 10 minutes
+                            curr_time = datetime.now()
+                            #logger.info("Face data: {person_name} - {similarity} ", person_name=self.person_name, similarity=self.similarity)
+                            with open('log.txt', 'a') as log_file:
+                                log_file.write(f'Face data: {self.person_name} - {self.similarity} - {curr_time} \n')
+
+
+                            self.log_details[self.person_name] = datetime.now()
+
 
 
                 elif (self.similarity < 0.95) and (self.similarity > 0.5):
@@ -196,7 +219,6 @@ class FaceRecognitionSystem:
                                 existing_images.sort()
                                 latest_image_path = os.path.join(self.folder_path, existing_images[-1])
                                 os.remove(latest_image_path)
-
                             # Save the image inside the person's folder
                             self.image_filename = f"{time_string}_{self.similarity}.jpeg"
                             self.save_path = os.path.join(self.folder_path, self.image_filename)
@@ -204,7 +226,6 @@ class FaceRecognitionSystem:
                     logger.info(f"{self.subject_name}:{self.similarity}")
                 else:
                     logger.warning(f"Recognition Similarity was very LOW: {self.similarity}")
-                # logger.info(f"{subject_name}:{similarity}")
 
 
         except Exception as e:
@@ -238,9 +259,14 @@ class FaceRecognitionSystem:
                         data = self.recognise_faces(files)
                         results = data.get('result')
                         self.judge_face_data(results, frame, time_string, current_time)
+
                     else:
-                        logger.info("[NO FACE FOUND]")
+                        logger.warning("[NO FACE FOUND]")
                 cv2.imshow("Camera Preview", frame)
+                self.save_path = f"Live/live.jpeg"
+                cv2.imwrite(self.save_path, frame)
+
+
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
 
