@@ -10,7 +10,7 @@ from FaceDetector import FaceDetector
 
 class FaceRecognitionSystem:
 
-    def __init__(self, rtsp_url, door_cloud_url):
+    def _init_(self, rtsp_url, door_cloud_url):
         self.rtsp_url = rtsp_url
         self.door_cloud_url = door_cloud_url
         self.cap = cv2.VideoCapture(rtsp_url)
