@@ -15,7 +15,7 @@ class FaceRecognitionSystem:
         self.door_cloud_url = door_cloud_url
         self.cap = cv2.VideoCapture(rtsp_url)
         self.face_detector = FaceDetector()
-        self.recognition_url = "http://192.168.1.195:8000/api/v1/recognition/recognize?limit=5&prediction_count=1&det_prob_threshold=0.5"
+        self.recognition_url = "http://"
         self.access_token = None
         self.token_last_refresh = 0
         self.token_expiration = 3599
